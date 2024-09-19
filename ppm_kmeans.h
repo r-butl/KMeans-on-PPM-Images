@@ -9,6 +9,8 @@
 #include <iostream>
 #include <sstream>
 
+#define PIXEL_DATA_WIDTH_BYTES 3
+
 class PPMKmeans {
     // Constructor
 
@@ -17,7 +19,7 @@ class PPMKmeans {
 
         ~PPMKmeans();
 
-        bool read_file(std::string file, std::vector<std::vector<int>> &image_data, int &x, int &y, int &max);
+        std::vector<std::vector<uint8_t>> read_file(std::string file, int &x, int &y, int &max);
 
     
 }; 
