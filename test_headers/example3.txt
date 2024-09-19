@@ -1,0 +1,5 @@
+P3
+1024 # the image width
+788 # the image height
+# A comment
+1023
