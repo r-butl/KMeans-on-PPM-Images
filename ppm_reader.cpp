@@ -4,7 +4,7 @@ PPMReader::PPMReader() {}
 
 PPMReader::~PPMReader() {}
 
-std::vector<std::vector<uint8_t>> PPMReader::read_file(std::string file,  int &x, int &y, int &max) {
+PPMData PPMReader::read_file(std::filesystem::path &file) {
     /*
         Helpful Articles:
 
@@ -13,10 +13,11 @@ std::vector<std::vector<uint8_t>> PPMReader::read_file(std::string file,  int &x
     */
 
     std::ifstream image_file;
-    image_file.exceptions( std::ifstream::failbit | std::ifstream::badbit);
+    image_file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     bool binary_mode = false;   // Default text mode
     std::string line;
    
+    ///////////////////////////////////// Open the File
     try {
         // Attempt to open the file
         image_file.open(file, std::ios::in);
@@ -30,7 +31,10 @@ std::vector<std::vector<uint8_t>> PPMReader::read_file(std::string file,  int &x
         std::cerr << "Error opening file: " << e.what() << std::endl;
     }
 
-    // Get Magic Number for ASCII or Binary information
+    ///////////////////////////////////// Parse header and create PPM file
+
+    int x, y, max_value = 0;
+
     try{
         std::getline(image_file, line);
         if (line != "P6" && line != "P3") {
@@ -44,6 +48,7 @@ std::vector<std::vector<uint8_t>> PPMReader::read_file(std::string file,  int &x
         // Read the rest of the header for image format information
         int element_counter = 0;    // 0 = width and height line 1 = max intensity
         while (std::getline(image_file, line)){
+            // Skip comment
             if (line[0] == '#'){
                 std::cout << "Comment: " << line << std::endl;
             } else {
@@ -51,14 +56,12 @@ std::vector<std::vector<uint8_t>> PPMReader::read_file(std::string file,  int &x
                     // Width and height
                     std::istringstream dimensions(line);
                     dimensions >> x >> y;
-                    std::cout << "Width: " << x <<  " Height: " << y << std::endl;
                     element_counter++;
                 }
                 else if (element_counter == 1){
                     // Max intensity
                     std::istringstream intensity(line);
-                    intensity >> max;
-                    std::cout << "Max Intensity: " << max << std::endl;
+                    intensity >> max_value;
                     break;
                 }
             }
@@ -68,7 +71,9 @@ std::vector<std::vector<uint8_t>> PPMReader::read_file(std::string file,  int &x
         exit(1);
     }
 
-    // Switch file modes if necessary
+    PPMData ppm_file(x, y, max_value);
+
+    ///////////////////////////////////// Switch file modes if necessary
     try{
 
         if (binary_mode){
@@ -78,35 +83,34 @@ std::vector<std::vector<uint8_t>> PPMReader::read_file(std::string file,  int &x
             image_file.seekg(stream_position);
 
             if (!image_file.is_open()){
-                std::cerr << "File could not open in binary mode." << std::endl;
+                std::cerr << "ERROR: File could not open in binary mode." << std::endl;
                 exit(1);
             }
         }
 
     } catch (std::exception &e){
-        std::cerr << "Error switching to binary read mode: " << e.what() << std::endl;
+        std::cerr << "ERROR: Switching to binary read mode: " << e.what() << std::endl;
         exit(1);
     }
 
-    std::vector<std::vector<uint8_t>> result(x * y, std::vector<uint8_t>(PIXEL_DATA_WIDTH_BYTES));
-    int expected_bytes = x * y * PIXEL_DATA_WIDTH_BYTES;
+    ///////////////////////////////////// Read in the data
+
+    int image_area = ppm_file.width * ppm_file.height;
+    int expected_bytes = image_area * PIXEL_DATA_WIDTH_BYTES;
     int bytes_read = 0;
 
-    // Read in the data
     if (binary_mode){
 
         unsigned char* buffer = new unsigned char[expected_bytes];
 
         do{
             image_file.read(reinterpret_cast<char*>(buffer) + bytes_read, expected_bytes - bytes_read);
-            int result = image_file.gcount();
-            if (result == 0){
+            int bytes = image_file.gcount();
+            if (bytes == 0){
                 break;
             }
-            bytes_read += result;
+            bytes_read += bytes;
         } while(bytes_read < expected_bytes);
-
-        std::cout << "Bytes read: " << bytes_read << std::endl;
 
         // count how many bytes were left at the end of the file
         if (!image_file.eof()) {
@@ -116,17 +120,17 @@ std::vector<std::vector<uint8_t>> PPMReader::read_file(std::string file,  int &x
             std::streampos end_pos = image_file.tellg();
             std::streamoff bytes_remaining = end_pos - current_pos;
 
-            std::cout << "Bytes remaining: " << bytes_remaining << std::endl;
+            std::cerr << "ERROR READING: Bytes remaining: " << bytes_remaining << std::endl;
         }
 
         image_file.close();
-        std::cout << "Closing File" << std::endl;
 
-        // Translate the values into a vector
-        for (int i = 0; i < x * y; i++){    // For each pixel
+        ///////////////////////////////////// Translate the values into a vector
+        for (int i = 0; i < image_area; i++){ 
+
             // For each byte in the pixel
             for (int j = 0; j < PIXEL_DATA_WIDTH_BYTES; j++){
-                result[i][j] = static_cast<uint8_t>(buffer[i*PIXEL_DATA_WIDTH_BYTES + j]);
+                ppm_file.data[i][j] = static_cast<uint8_t>(buffer[i*PIXEL_DATA_WIDTH_BYTES + j]);
             }
        }
         
@@ -140,7 +144,7 @@ std::vector<std::vector<uint8_t>> PPMReader::read_file(std::string file,  int &x
         std::cout << buffer << std::endl;
     }
 
-    return result;
+    return ppm_file;
 
 }
 

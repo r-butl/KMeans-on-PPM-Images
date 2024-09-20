@@ -51,14 +51,13 @@ int main(int argc, char** argv){
 
             std::filesystem::path full_path = std::filesystem::path(base_path) / header;
                 
-            // Read in the file as a vector
-            int x, y, max = 0;
-            std::vector<std::vector<uint8_t>> image_data = ppm_module.read_file(full_path, x, y, max);
+            // Read in the file
+            PPMData image_data = ppm_module.read_file(full_path);
             
             std::cout << std::endl;
 
             if (print_vectors){
-                for (auto rgb_triplet : image_data) {
+                for (auto rgb_triplet : image_data.data) {
                     // Loop through each element in the inner vector (columns/individual RGB values)
                     std::cout << static_cast<int>(rgb_triplet[0]) << " " 
                     << static_cast<int>(rgb_triplet[1]) << " " 
@@ -71,15 +70,14 @@ int main(int argc, char** argv){
 
         std::filesystem::path full_path = std::filesystem::path(base_path) / headers[0];
 
-        int x, y, max = 0;
-        std::vector<std::vector<uint8_t>> image_data = ppm_module.read_file(full_path, x, y, max);
+        PPMData image_data = ppm_module.read_file(full_path);
 
-        std::vector<std::vector<double>> kmeans_data(image_data.size(), std::vector<double>(image_data[0].size()));
+        std::vector<std::vector<double>> kmeans_data(image_data.data.size(), std::vector<double>(image_data.data[0].size()));
 
         // Convert each element from int to float
-        for (size_t i = 0; i < image_data.size(); ++i) {
-            for (size_t j = 0; j < image_data[i].size(); ++j) {
-                kmeans_data[i][j] = static_cast<double>(image_data[i][j]);
+        for (size_t i = 0; i < image_data.data.size(); ++i) {
+            for (size_t j = 0; j < image_data.data[i].size(); ++j) {
+                kmeans_data[i][j] = static_cast<double>(image_data.data[i][j]);
             }
         }
 
