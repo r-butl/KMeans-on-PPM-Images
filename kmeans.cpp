@@ -21,7 +21,7 @@ std::vector<std::vector<double>> KMeans::initialize_centroids(const std::vector<
         indices.insert(new_number);
     }
 
-    // Select the indices and place them in the centroids vector
+    // Select using indices and place them in the centroids vector
     for(auto idx: indices){
         centroids.push_back(data[idx]);
     }
@@ -51,6 +51,7 @@ void KMeans::calc_all_distance(const std::vector<std::vector<double>> &data_poin
         throw std::runtime_error("Distance vector (n * m) must be n = datapoints.size and m = centroids.size");
     }
 
+    // Set distances
     for (int data = 0; data < data_points.size(); data++){
         for (int centroid = 0; centroid < centroids.size(); centroid++){
             distances[data][centroid] = calc_distance(data_points[data], centroids[centroid]);
@@ -58,20 +59,36 @@ void KMeans::calc_all_distance(const std::vector<std::vector<double>> &data_poin
     }
 }
 
-void KMeans::choose_clusters_from_distances(const std::vector<std::vector<double>> &distances, std::vector<int> cluster_assignment_index){
+void KMeans::choose_clusters_from_distances(const std::vector<std::vector<double>> &distances, std::vector<int> &cluster_assignment_index){
+    
+    for (int i = 0; i < distances.size(); i++){
+        int best_idx = 0;
+        double closest_value = __DBL_MAX__;
 
+        // Choose the closest centroid to the datapoint and store the idx of the centroid
+        for (int d = 0; d < distances[i].size(); d++){
+            double curr_distance = distances[i][d];
+            if (curr_distance < closest_value){
+                closest_value = curr_distance;
+                best_idx = d; 
+            }
+        }
+
+        cluster_assignment_index[i] = best_idx;
+    }
 }
-
 
 std::vector<std::vector<double>> KMeans::run(std::vector<std::vector<double>> &data, int clusters) {
     int dim = data[0].size();
-    int data_points = data.size();
-    std::cout << "Dimensionality of data: " << dim << std::endl;
 
+    // Initialize
     std::vector<std::vector<double>> centroids = initialize_centroids(data, clusters);
-
-    // data, centroids
     std::vector<std::vector<double>> distances(data.size(), std::vector<double>(centroids.size()));
+    calc_all_distance(data, centroids, distances);
+
+    std::vector<int> cluster_assignments_curr(data.size());
+    choose_clusters_from_distances(distances, cluster_assignments_curr);
+    std::vector<int> cluster_assignments_prev = cluster_assignments_curr;
 
     
 }

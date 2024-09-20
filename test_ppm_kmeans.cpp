@@ -84,9 +84,8 @@ int main(int argc, char** argv){
         }
 
         // Test Calculate distance
-        double distance = kmeans_module.calc_distance(kmeans_data[0], kmeans_data[1]);
 
-        // Visual verifcation of results
+        double distance = kmeans_module.calc_distance(kmeans_data[0], kmeans_data[1]);
         for(int i = 0; i < kmeans_data[0].size(); i++){
             std::cout << "p1: " << kmeans_data[0][i] << " p1: " << kmeans_data[1][i] << std::endl;
         }
@@ -108,6 +107,16 @@ int main(int argc, char** argv){
             std::cout << " " << distances[i][0] << " " << distances[i][1] << " " << distances[i][2] <<  std::endl;
         }
 
+        // Test Closest Labels
+        printf("Assigned labels.\n");
+        std::vector<int> cluster_assignments_curr(kmeans_data.size());
+        kmeans_module.choose_clusters_from_distances(distances, cluster_assignments_curr);
+        for(int i = 0; i < cluster_assignments_curr.size(); i++){
+            std::cout << cluster_assignments_curr[i] << " ";
+
+            if (i % 10 == 0)
+                std::cout << std::endl;
+        }
     }
 
     return 0;
