@@ -1,10 +1,10 @@
-#include "ppm_kmeans.h"
+#include "ppm_reader.h"
 
-PPMKmeans::PPMKmeans() {}
+PPMReader::PPMReader() {}
 
-PPMKmeans::~PPMKmeans() {}
+PPMReader::~PPMReader() {}
 
-std::vector<std::vector<uint8_t>> PPMKmeans::read_file(std::string file,  int &x, int &y, int &max) {
+std::vector<std::vector<uint8_t>> PPMReader::read_file(std::string file,  int &x, int &y, int &max) {
     /*
         Helpful Articles:
 

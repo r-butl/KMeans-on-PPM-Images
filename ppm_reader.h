@@ -1,5 +1,5 @@
-#ifndef PPM_KMEANS
-#define PPM_KMEANS
+#ifndef PPM_READER
+#define PPM_READER
 
 #include <stdio.h>
 #include <fstream>
@@ -11,17 +11,19 @@
 
 #define PIXEL_DATA_WIDTH_BYTES 3
 
-class PPMKmeans {
+class PPMReader {
     // Constructor
 
     public: 
-        PPMKmeans();
+        PPMReader();
 
-        ~PPMKmeans();
+        ~PPMReader();
 
         std::vector<std::vector<uint8_t>> read_file(std::string file, int &x, int &y, int &max);
-
     
-}; 
+    private:
+
+        
+};  
 
 #endif
