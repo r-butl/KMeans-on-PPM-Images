@@ -20,6 +20,25 @@ class PPMReader {
         ~PPMReader();
 
         std::vector<std::vector<uint8_t>> read_file(std::string file, int &x, int &y, int &max);
+
+        bool write_file(std::vector<std::vector<uint8_t>> data);
+    
+    private:
+
+        
+};  
+
+#endifclass PPMReader {
+    // Constructor
+
+    public: 
+        PPMReader();
+
+        ~PPMReader();
+
+        std::vector<std::vector<uint8_t>> read_file(std::string file, int &x, int &y, int &max);
+
+        bool write_file(std::vector<std::vector<uint8_t>> data);
     
     private:
 

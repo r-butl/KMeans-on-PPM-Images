@@ -37,9 +37,9 @@ int main(int argc, char** argv){
 
     std::string base_path= "/Users/lucasbutler/Desktop/Fall24Materials/581-MachineLearning/Excercises/two/kmeans_imple/images";
     std::vector<std::string> headers = {
-        //"bricks.ppm",
+        "bricks.ppm",
         "sun-image.ppm",
-        //"test-p3.ppm"
+        "test-p3.ppm"
     };
 
     PPMReader ppm_module;
@@ -89,7 +89,7 @@ int main(int argc, char** argv){
         for(int i = 0; i < kmeans_data[0].size(); i++){
             std::cout << "p1: " << kmeans_data[0][i] << " p1: " << kmeans_data[1][i] << std::endl;
         }
-        std::cout << "Distance: " << distance << std::endl;
+        std::cout << "Distance: " << distance << std::endl << std::endl;
 
         // Verify Cluster init
         printf("Cluster init.\n");
@@ -98,6 +98,7 @@ int main(int argc, char** argv){
         for(int i = 0; i < centroids.size(); i++){
             std::cout << " " << centroids[i][0] << " " << centroids[i][1] << " " << centroids[i][2] <<  std::endl;
         }
+        std::cout << std::endl << std::endl;
 
         // Test Distance Calculation
         printf("Distance calc.\n");
@@ -106,17 +107,29 @@ int main(int argc, char** argv){
         for(int i = 0; i < 10; i++){
             std::cout << " " << distances[i][0] << " " << distances[i][1] << " " << distances[i][2] <<  std::endl;
         }
+        std::cout << std::endl << std::endl;
 
         // Test Closest Labels
         printf("Assigned labels.\n");
         std::vector<int> cluster_assignments_curr(kmeans_data.size());
         kmeans_module.choose_clusters_from_distances(distances, cluster_assignments_curr);
-        for(int i = 0; i < cluster_assignments_curr.size(); i++){
+        for(int i = 0; i < 100; i++){
+            if (i % 10 == 9)
+                std::cout << std::endl; std::cout << " ";
+
             std::cout << cluster_assignments_curr[i] << " ";
 
-            if (i % 10 == 0)
-                std::cout << std::endl;
         }
+        
+        std::cout << std::endl << std::endl;
+
+
+        // Run KMeans
+        std::vector<std::vector<double>> clustered_data = kmeans_module.run(kmeans_data, 4, 50, 0);
+        for(int i = 0; i < 10; i++){
+            std::cout << " " << clustered_data[i][0] << " " << clustered_data[i][1] << " " << clustered_data[i][2] <<  std::endl;
+        }
+
     }
 
     return 0;
