@@ -7,6 +7,16 @@
 
 #define DEBUG 1
 
+uint8_t convertDoubleToUInt8(double value) {
+    // Clamp the value to the range [0, 255]
+    if (value < 0) {
+        return 0;
+    } else if (value > 255) {
+        return 255;
+    }
+    return static_cast<uint8_t>(std::round(value)); // Use round to avoid truncation
+}
+
 int main(int argc, char** argv){
     /*
     std::string base_path= "/Users/lucasbutler/Desktop/Fall24Materials/581-MachineLearning/Excercises/two/kmeans_imple/test_headers";
@@ -19,17 +29,8 @@ int main(int argc, char** argv){
     };
     */
 
-    int test_mode = 1;
+    int test_mode = 4;
     bool print_vectors = false;
-    // 1 - test header parser
-
-    for (int i = 0; i < argc; i++){
-        if (strcmp(argv[i], "--test-header-parser")){
-            test_mode = 1;
-        }else if(strcmp(argv[i], "--print-vectors")){
-            print_vectors = true;
-        }
-    }
 
     // Print modes:
     std::cout << "Testing mode: " << test_mode << std::endl;
@@ -127,6 +128,50 @@ int main(int argc, char** argv){
         for(int i = 0; i < 10; i++){
             std::cout << " " << clustered_data[i][0] << " " << clustered_data[i][1] << " " << clustered_data[i][2] <<  std::endl;
         }
+
+    } else if (test_mode == 2){
+
+
+        PPMData test(12, 23, 12);
+
+        ppm_module.write_file(test, "test.ppm", true);      
+
+
+
+    } else if (test_mode == 3){
+
+        std::filesystem::path file = "test.ppm";
+        PPMData test = ppm_module.read_file(file);
+
+        std::cout << test.height << " " << test.width << " " << test.max_value << std::endl;
+
+    } else if (test_mode == 4){
+
+        std::filesystem::path file = "images/bricks.ppm";
+        PPMData image = ppm_module.read_file(file);
+                
+        std::vector<std::vector<double>> kmeans_data(image.data.size(), std::vector<double>(image.data[0].size()));
+
+        // Convert each element from int to float
+        for (size_t i = 0; i < image.data.size(); ++i) {
+            for (size_t j = 0; j < image.data[i].size(); ++j) {
+                kmeans_data[i][j] = static_cast<double>(image.data[i][j]);
+            }
+        }
+
+        // Run KMeans
+        std::vector<std::vector<double>> clustered_data = kmeans_module.run(kmeans_data, 4, 50, 0);
+
+        // Convert back to uint_t
+        PPMData out_image(image.width, image.height, image.max_value);
+
+        for (size_t i = 0; i < clustered_data.size(); ++i) {
+            for (size_t j = 0; j < clustered_data[i].size(); ++j) {
+                out_image.data[i][j] = convertDoubleToUInt8(clustered_data[i][j]);
+            }
+        }
+
+        ppm_module.write_file(out_image, "clustered_image.ppm", true);
 
     }
 

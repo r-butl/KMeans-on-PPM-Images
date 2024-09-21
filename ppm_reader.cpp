@@ -56,12 +56,14 @@ PPMData PPMReader::read_file(std::filesystem::path &file) {
                     // Width and height
                     std::istringstream dimensions(line);
                     dimensions >> x >> y;
+                    std::cout << x << " " << y << " " << std::endl;
                     element_counter++;
                 }
                 else if (element_counter == 1){
                     // Max intensity
                     std::istringstream intensity(line);
                     intensity >> max_value;
+                    std::cout << max_value << std::endl;
                     break;
                 }
             }
@@ -148,3 +150,37 @@ PPMData PPMReader::read_file(std::filesystem::path &file) {
 
 }
 
+bool PPMReader::write_file(PPMData picture, std::filesystem::path file_name, bool binary){
+
+    std::ofstream out_file;
+
+    // Write the header in ascii
+    out_file.open(file_name, std::ios::out);
+
+    // Write the data mode
+    if (binary){
+        out_file << "P6" << std::endl;
+    }else{
+        out_file << "P3" << std::endl;
+    }
+
+    // Write the image dimensions to the file
+    out_file << std::to_string(picture.width) << " " << std::to_string(picture.height) << std::endl;
+    out_file << std::to_string(picture.max_value) << std::endl << std::endl;
+
+    // Write the 
+    if (binary){
+        // Open in binary output append mode
+        out_file.open(file_name, std::ios::binary | std::ios::out | std::ios::app);
+
+        for (auto pixel: picture.data){
+            for (auto byte: pixel){
+                out_file.write(reinterpret_cast<const char*>(&byte), sizeof(byte));
+            }
+        }
+
+        out_file.close();
+        return true;
+    }
+
+}
