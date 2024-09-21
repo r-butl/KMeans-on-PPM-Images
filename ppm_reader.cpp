@@ -166,16 +166,22 @@ bool PPMReader::write_file(PPMData picture, std::filesystem::path file_name, boo
 
     // Write the image dimensions to the file
     out_file << std::to_string(picture.width) << " " << std::to_string(picture.height) << std::endl;
-    out_file << std::to_string(picture.max_value) << std::endl << std::endl;
+    out_file << std::to_string(picture.max_value) << std::endl;
+    out_file.close();
 
     // Write the 
     if (binary){
         // Open in binary output append mode
         out_file.open(file_name, std::ios::binary | std::ios::out | std::ios::app);
 
-        for (auto pixel: picture.data){
-            for (auto byte: pixel){
-                out_file.write(reinterpret_cast<const char*>(&byte), sizeof(byte));
+        if (!out_file.is_open()) {
+            std::cerr << "Failed to open the file." << std::endl;
+            return false;
+        }
+
+        for (size_t d = 0; d < picture.data.size(); d++) {
+            for (size_t p = 0; p < picture.data[d].size(); p++) {
+                out_file.write(reinterpret_cast<const char*>(&picture.data[d][p]), sizeof(picture.data[d][p]));
             }
         }
 
