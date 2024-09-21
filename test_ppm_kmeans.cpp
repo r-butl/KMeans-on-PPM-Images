@@ -31,6 +31,9 @@ int main(int argc, char** argv){
 
     int test_mode = 4;
     bool print_vectors = false;
+    int max_iters = 50;
+    int num_clusters = 5;
+    float epsilon = 0;
 
     // Print modes:
     std::cout << "Testing mode: " << test_mode << std::endl;
@@ -160,7 +163,7 @@ int main(int argc, char** argv){
         }
 
         // Run KMeans
-        std::vector<std::vector<double>> clustered_data = kmeans_module.run(kmeans_data, 4, 50, 0);
+        std::vector<std::vector<double>> clustered_data = kmeans_module.run(kmeans_data, num_clusters, max_iters, epsilon);
 
         // Convert back to uint_t
         PPMData out_image(image.width, image.height, image.max_value);

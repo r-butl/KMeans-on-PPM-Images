@@ -5,7 +5,7 @@ KMeans::KMeans() {};
 KMeans::~KMeans() {};
 
 std::vector<std::vector<double>> KMeans::initialize_centroids(const std::vector<std::vector<double>> &data, int clusters){
-    
+
     // Eventually implement Kmeans++, for now, choose (clusters) amount of random points from the og dataset
     std::vector<std::vector<double>> centroids;
 
@@ -50,6 +50,7 @@ void KMeans::calc_all_distance(const std::vector<std::vector<double>> &data_poin
         centroids = (number of centroids) * (feature size of 1 data point)
         distances =  (number of data_points) * (number of centroids)
     */
+
     if (distances.size() != data_points.size() || distances[0].size() != centroids.size()){
         throw std::runtime_error("Distance vector (n * m) must be n = datapoints.size and m = centroids.size");
     }
@@ -83,36 +84,44 @@ void KMeans::choose_clusters_from_distances(const std::vector<std::vector<double
 
 std::vector<std::vector<double>> KMeans::calc_cluster_centroids(const std::vector<std::vector<double>> &data_points, const std::vector<int> &cluster_assignment_index, int num_clusters){
 
-    // Calculate the mean of each centroid
-    std::vector<std::vector<double>> centroids(num_clusters, std::vector<double>(data_points[0].size()));
-    std::vector<int> cluster_label_counts(num_clusters);
+    printf("calc_cluster_centroids\n");
 
+    int data_size = data_points.size();
     int feature_size = data_points[0].size();
 
-    // Initial the new centroids and label counts to zero
-    for (int c = 0; c < centroids.size(); c++){
+    if (data_size != cluster_assignment_index.size()){
+        std::cerr << "ERROR: cluster assignment index not the same size as the data.\n";
+        exit(1);
+    }
+
+    // Calculate the mean of each centroid
+    std::vector<std::vector<double>> centroids(num_clusters, std::vector<double>(feature_size));
+    std::vector<int> cluster_label_counts(num_clusters);
+
+    // Initialize the new centroids and label counts to zero
+    for (int c = 0; c < num_clusters; ++c){
         cluster_label_counts[c] = 0;
-        for (int p = 0; p < centroids[0].size(); p++){
-            centroids[c][p] = 0;
+        for (int f = 0; f < feature_size; ++f){
+            centroids[c][f] = 0;
         }
     }
 
     // Sum up the centroids and labels for each point in the dataset
-    for (int d = 0; d < data_points.size(); d++){   // For each point
+    for (int d = 0; d < data_size; ++d){   // For each point
 
         int assigned_cluster = cluster_assignment_index[d]; // Get the data point's label
-        cluster_label_counts[assigned_cluster]++;       // Add to the sum of data points with this centroid label
+        ++cluster_label_counts[assigned_cluster];       // Add to the sum of data points with this centroid label
 
         // For each feature add up the data point value to the centroid sum
-        for (int f = 0; f < feature_size; f++){
+        for (int f = 0; f < feature_size; ++f){
             centroids[assigned_cluster][f] += data_points[d][f];
         }
     }
 
     // Calculate the mean for each centroid feature
-    for (int c = 0; c < centroids.size(); c++){
+    for (int c = 0; c < num_clusters; c++){
 
-        for (int f = 0; f < num_clusters; f++){
+        for (int f = 0; f < feature_size; f++){
             if (cluster_label_counts[c] != 0){
                 centroids[c][f] /= cluster_label_counts[c];
             } else {
@@ -151,7 +160,7 @@ std::vector<std::vector<double>> KMeans::run(std::vector<std::vector<double>> &d
     std::vector<std::vector<double>> centroids_prev(num_clusters, std::vector<double>(dim));
     std::vector<int> cluster_assignments_curr(data.size());
     std::vector<int> cluster_assignments_prev(data.size());
-    std::vector<std::vector<double>> distances(data.size(), std::vector<double>(centroids_curr.size()));
+    std::vector<std::vector<double>> distances(data.size(), std::vector<double>(num_clusters));
 
     // Initialize Distances and Cluster assignments
     centroids_curr = initialize_centroids(data, num_clusters);
