@@ -32,7 +32,7 @@ int main(int argc, char** argv){
     int test_mode = 4;
     bool print_vectors = false;
     int max_iters = 50;
-    int num_clusters = 5;
+    int num_clusters = 8;
     float epsilon = 0;
 
     // Print modes:

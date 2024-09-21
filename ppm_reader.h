@@ -33,6 +33,12 @@ class PPMReader {
 
         bool write_file(PPMData picture, std::filesystem::path file_name, bool binary);
     
+        PPMData parse_header(std::ifstream &fd, bool &binary_mode);
+
+        void read_binary_ppm_data(std::ifstream &fd, PPMData &ppm_data);
+
+        void read_ascii_ppm_data(std::ifstream &fd, PPMData &ppm_data);
+
     private:
 
         

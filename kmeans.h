@@ -22,7 +22,7 @@ class KMeans{
 
         void choose_clusters_from_distances(const std::vector<std::vector<double>> &distances, std::vector<int> &cluster_assignment_index);
         
-        std::vector<std::vector<double>> calc_cluster_centroids(const std::vector<std::vector<double>> &data_points, const std::vector<int> &cluster_assignment_index, int num_clusters);
+        void calc_cluster_centroids(const std::vector<std::vector<double>> &data_points, const std::vector<int> &cluster_assignment_index, std::vector<std::vector<double>> &centroids);
 
         bool has_converged(const std::vector<std::vector<double>> &p1, const std::vector<std::vector<double>> &p2, const double &epsilon);
 
