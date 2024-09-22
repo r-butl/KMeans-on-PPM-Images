@@ -137,7 +137,7 @@ void KMeans::calc_cluster_centroids(const std::vector<std::vector<double>> &data
             if (cluster_label_counts[c] != 0){
                 centroids[c][f] /= cluster_label_counts[c];
             } else {
-                std::cout << "WARNING: Centroid has 0 labels!\n";
+                printf("WARNING: Centroid has 0 labels!");
             }
         }
     }   
@@ -147,7 +147,7 @@ bool KMeans::has_converged(const std::vector<std::vector<double>> &p1, const std
     // Check if all distances between features are below the epsilon value
 
     if (p1.size() != p2.size() || p1[0].size() != p2[0].size()){
-        std::cerr << "ERROR: detect_move: vectors are not the same dimensions." << std::endl;
+        std::cerr << "ERROR: detect_move -> vectors are not the same dimensions." << std::endl;
     }
 
     bool converged = true;;
