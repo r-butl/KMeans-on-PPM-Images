@@ -10,6 +10,7 @@ PPMData PPMReader::parse_header(std::ifstream &fd, bool &binary_mode){
     std::string line;
 
     try{
+        // Get data type
         std::getline(fd, line);
         if (line != "P6" && line != "P3") {
             std::cerr << "Error: Unsupported PPM format" << std::endl;
@@ -22,6 +23,7 @@ PPMData PPMReader::parse_header(std::ifstream &fd, bool &binary_mode){
         // Read the rest of the header for image format information
         int element_counter = 0;    // 0 = width and height line 1 = max intensity
         while (std::getline(fd, line)){
+
             // Skip comment
             if (line[0] == '#'){
                 std::cout << "Comment: " << line << std::endl;
@@ -32,8 +34,7 @@ PPMData PPMReader::parse_header(std::ifstream &fd, bool &binary_mode){
                     dimensions >> x >> y;
                     std::cout << x << " " << y << " " << std::endl;
                     element_counter++;
-                }
-                else if (element_counter == 1){
+                } else if (element_counter == 1){
                     // Max intensity
                     std::istringstream intensity(line);
                     intensity >> max_value;
@@ -43,7 +44,7 @@ PPMData PPMReader::parse_header(std::ifstream &fd, bool &binary_mode){
             }
         }
     } catch (std::exception &e){
-        std::cerr << "Error parsing header: " << e.what() << std::endl;
+        std::cerr << "ERROR: parse_reader: " << e.what() << std::endl;
         exit(1);
     }
 
@@ -77,13 +78,13 @@ void PPMReader::read_binary_ppm_data(std::ifstream &fd, PPMData &ppm_data){
     
     if (bytes_remaining > 0) {
 
-        std::cerr << "ERROR READING: Bytes remaining: " << bytes_remaining << std::endl;
+        std::cerr << "ERROR: Bytes remaining after reading: " << bytes_remaining << std::endl;
     }
 
     fd.close();
 
     ///////////////////////////////////// Translate the values into a vector
-    for (int i = 0; i < image_area; i++){ 
+    for (int i = 0; i < image_area; ++i){ 
 
         // For each byte in the pixel
         for (int j = 0; j < PIXEL_DATA_WIDTH_BYTES; j++){
@@ -96,15 +97,12 @@ void PPMReader::read_binary_ppm_data(std::ifstream &fd, PPMData &ppm_data){
 }
 
 void PPMReader::read_ascii_ppm_data(std::ifstream &fd, PPMData &ppm_data){
-
+    // Needs implementing
 }
 
 PPMData PPMReader::read_file(std::filesystem::path &file) {
     /*
-        Helpful Articles:
 
-        https://my.eng.utah.edu/~cs5610/ppm.html#:~:text=%22P6%22%20image%20files%20are%20obviously,bottom%2C%20left%20to%20right%20order.
-    
     */
 
     std::ifstream image_file;
@@ -119,12 +117,12 @@ PPMData PPMReader::read_file(std::filesystem::path &file) {
         
         // Check if the file was successfully opened
         if (!image_file) {
-            std::cerr <<"Error: File could not be opened.\n";
+            std::cerr <<"ERROR: File could not be opened.\n";
             exit(1);
         }
     }
     catch (std::exception &e){
-        std::cerr << "Error opening file: " << e.what() << std::endl;
+        std::cerr << "ERROR: opening file: " << e.what() << std::endl;
     }
 
     ///////////////////////////////////// Parse header and create PPM file
@@ -154,14 +152,13 @@ PPMData PPMReader::read_file(std::filesystem::path &file) {
 
     ///////////////////////////////////// Read in the data
 
-
-
     if (binary_mode){
 
         read_binary_ppm_data(image_file, ppm_data);
         
     }else{
-
+        
+        read_ascii_ppm_data(image_file, ppm_data);
 
     }
 
@@ -169,7 +166,7 @@ PPMData PPMReader::read_file(std::filesystem::path &file) {
 
 }
 
-bool PPMReader::write_file(PPMData picture, std::filesystem::path file_name, bool binary){
+void PPMReader::write_file(PPMData picture, std::filesystem::path file_name, bool binary){
 
     std::ofstream out_file;
 
@@ -195,7 +192,7 @@ bool PPMReader::write_file(PPMData picture, std::filesystem::path file_name, boo
 
         if (!out_file.is_open()) {
             std::cerr << "Failed to open the file." << std::endl;
-            return false;
+            return;
         }
 
         for (size_t d = 0; d < picture.data.size(); d++) {
@@ -205,7 +202,6 @@ bool PPMReader::write_file(PPMData picture, std::filesystem::path file_name, boo
         }
 
         out_file.close();
-        return true;
     }
 
 }

@@ -31,7 +31,7 @@ class PPMReader {
 
         PPMData read_file(std::filesystem::path &file);
 
-        bool write_file(PPMData picture, std::filesystem::path file_name, bool binary);
+        void write_file(PPMData picture, std::filesystem::path file_name, bool binary);
     
         PPMData parse_header(std::ifstream &fd, bool &binary_mode);
 

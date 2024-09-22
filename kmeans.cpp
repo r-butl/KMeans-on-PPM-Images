@@ -161,7 +161,6 @@ bool KMeans::has_converged(const std::vector<std::vector<double>> &p1, const std
     return converged;
 }
 
-
 std::vector<std::vector<double>> KMeans::run(std::vector<std::vector<double>> &data, int num_clusters, int iterations, double epsilon) {
 
     int iter_count = 0;
