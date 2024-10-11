@@ -4,26 +4,29 @@ KMeans::KMeans() {};
 
 KMeans::~KMeans() {};
 
-std::vector<std::vector<double>> KMeans::initialize_centroids(const std::vector<std::vector<double>> &data, int clusters){
-
-    // Eventually implement Kmeans++, for now, choose (clusters) amount of random points from the og dataset
+std::vector<std::vector<double>> KMeans::initialize_centroids(const std::vector<std::vector<double>> &data, int clusters) {
     std::vector<std::vector<double>> centroids;
-
-    std::random_device rd;  // a seed source for the random number engine
-    std::mt19937 gen(rd()); // mersenne_twister_engine seeded with rd()
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    
+    // Randomly select the first centroid
     std::uniform_int_distribution<> distrib(0, data.size() - 1);
-    std::set<int> indices;  
+    centroids.push_back(data[distrib(gen)]);
 
-    // Generate random indices
-    int new_number = 0;
-    while (indices.size() < clusters){
-        new_number = distrib(gen);
-        indices.insert(new_number);
-    }
+    for (int i = 1; i < clusters; ++i) {
+        std::vector<double> distances(data.size(), std::numeric_limits<double>::max());
 
-    // Select using indices and place them in the centroids vector
-    for(auto idx: indices){
-        centroids.push_back(data[idx]);
+        // Calculate the distance from each point to the nearest centroid
+        for (int j = 0; j < centroids.size(); ++j) {
+            for (size_t k = 0; k < data.size(); ++k) {
+                double dist = calc_distance(data[k], centroids[j]);
+                distances[k] = std::min(distances[k], dist);
+            }
+        }
+
+        // Select the next centroid based on weighted probability
+        std::discrete_distribution<> dist_prob(distances.begin(), distances.end());
+        centroids.push_back(data[dist_prob(gen)]);
     }
 
     return centroids;
